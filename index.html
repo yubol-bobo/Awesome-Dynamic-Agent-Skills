@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>They Are Not Static — A Survey of Dynamic Agent Skills</title>
+<meta name="description" content="A 2023–2026 survey of dynamic, self-evolving skill systems for LLM agents: a 7-tuple skill formalism, a ten-operator library algebra, an 8-stage lifecycle, and a 94-paper audit." />
+
+<!-- Open Graph -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="They Are Not Static: A Survey of Dynamic Agent Skills" />
+<meta property="og:description" content="Lifecycle-managed, verified, evolving skill stores for LLM agents — a 94-paper audit (2023–2026)." />
+<meta property="og:image" content="https://yubol-bobo.github.io/Awesome-Dynamic-Agent-Skills/og.svg" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312305A'/%3E%3Cpath d='M14 32 L28 18 L46 18 L46 32 L36 32 L36 46 L18 46 L18 32 Z' fill='none' stroke='%235B8DEF' stroke-width='3' stroke-linejoin='round'/%3E%3Ccircle cx='46' cy='32' r='6' fill='%230F8B8D'/%3E%3C/svg%3E" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:    '#0a1530',
+          navy:   '#12305A',
+          steel:  '#1F4E79',
+          azure:  '#5B8DEF',
+          teal:   '#0F8B8D',
+          moss:   '#5BAA78',
+          gold:   '#D19A2A',
+          coral:  '#C95D63',
+          paper:  '#F8FAFC',
+          parch:  '#FBF8EF'
+        },
+        fontFamily: {
+          serif: ['"Source Serif 4"','"Source Serif Pro"','Georgia','serif'],
+          sans:  ['"Inter"','system-ui','-apple-system','sans-serif'],
+          mono:  ['"JetBrains Mono"','ui-monospace','SFMono-Regular','monospace']
+        }
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- KaTeX for the 7-tuple equation -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0a1530; background: #FBF8EF; }
+  .prose-title { font-family: 'Source Serif 4','Georgia',serif; letter-spacing: -0.01em; }
+  .grain { background-image: radial-gradient(rgba(18,48,90,.045) 1px, transparent 1px); background-size: 18px 18px; }
+  .pill { display:inline-flex; align-items:center; gap:.35rem; padding:.2rem .55rem; border-radius:9999px; font-size:.7rem; font-weight:600; line-height:1; }
+  .opcard { transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .opcard:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -16px rgba(18,48,90,.35); }
+  .lifenode { transition: transform .15s ease, filter .15s ease; }
+  .lifenode:hover { transform: scale(1.04); filter: drop-shadow(0 8px 18px rgba(18,48,90,.25)); }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .copy-btn:active { transform: scale(.97); }
+  /* Make the long taxonomy table feel readable */
+  .ttable td, .ttable th { padding: .55rem .65rem; vertical-align: top; }
+  .ttable tbody tr:nth-child(odd) { background: rgba(18,48,90,.025); }
+  .ttable tbody tr:hover { background: rgba(91,141,239,.10); }
+  .chip { display:inline-block; padding: 1px 7px; border-radius: 6px; font-size: .68rem; font-weight: 600; }
+  .chip-ref   { background: #E5EDFA; color: #12305A; }
+  .chip-rl    { background: #FCE9C7; color: #6F4D0F; }
+  .chip-lesson{ background: #DCEBE2; color: #1F4F33; }
+  .chip-exec  { background: #DDF1F1; color: #0F5859; }
+  .chip-param { background: #EAE0F1; color: #4B2C68; }
+  .chip-infra { background: #E1E8F0; color: #1F2D44; }
+  .chip-safety{ background: #F8DEE0; color: #7A2226; }
+  .chip-eval  { background: #F1ECD9; color: #5A4818; }
+  .chip-found { background: #DCE2DA; color: #2E3A2A; }
+  .opbadge { font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: .03em; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ============================ NAV ============================ -->
+<nav class="sticky top-0 z-40 backdrop-blur bg-parch/80 border-b border-navy/10">
+  <div class="max-w-6xl mx-auto px-5 h-12 flex items-center justify-between text-sm">
+    <a href="#top" class="font-semibold text-navy tracking-tight">Dynamic Agent Skills <span class="text-azure">·</span> <span class="font-normal text-ink/60">Survey 2026</span></a>
+    <div class="hidden md:flex items-center gap-5 text-ink/70">
+      <a href="#abstract"   class="hover:text-navy">Abstract</a>
+      <a href="#formalism"  class="hover:text-navy">Formalism</a>
+      <a href="#operators"  class="hover:text-navy">Operators</a>
+      <a href="#lifecycle"  class="hover:text-navy">Lifecycle</a>
+      <a href="#findings"   class="hover:text-navy">Findings</a>
+      <a href="#papers"     class="hover:text-navy">Papers</a>
+      <a href="#cite"       class="hover:text-navy">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<header id="top" class="relative overflow-hidden">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy via-steel to-[#0a1f3d]"></div>
+  <div class="absolute inset-0 -z-10 grain opacity-40"></div>
+  <div class="absolute -top-40 -right-32 w-[36rem] h-[36rem] rounded-full bg-azure/20 blur-3xl"></div>
+  <div class="absolute -bottom-40 -left-32 w-[34rem] h-[34rem] rounded-full bg-teal/20 blur-3xl"></div>
+
+  <div class="max-w-5xl mx-auto px-6 pt-20 pb-24 text-center text-paper">
+    <div class="inline-flex items-center gap-2 px-3 py-1 mb-7 rounded-full bg-white/10 border border-white/20 text-xs font-medium tracking-wide">
+      <span class="w-1.5 h-1.5 rounded-full bg-moss animate-pulse"></span>
+      Survey · TMLR preprint · 94-paper audit (2023–2026)
+    </div>
+    <h1 class="prose-title text-4xl sm:text-5xl md:text-6xl font-bold leading-tight">
+      They Are Not Static<span class="text-azure">.</span><br/>
+      <span class="text-paper/90">A Survey of Dynamic Agent Skills</span>
+    </h1>
+    <p class="mt-6 text-lg text-paper/80 max-w-3xl mx-auto leading-relaxed">
+      LLM agents externalize procedural knowledge into reusable <em>skills</em>. We argue that dynamic skill systems
+      are best understood as <span class="text-azure font-semibold">lifecycle-managed, verified, evolving artifact stores</span>
+      — not just bigger libraries.
+    </p>
+
+    <div class="mt-10 flex flex-wrap justify-center items-center gap-x-7 gap-y-3 text-paper/95">
+      <div class="text-center">
+        <div class="font-semibold text-lg">Yubo Li</div>
+        <div class="text-xs uppercase tracking-widest text-paper/60">Carnegie Mellon University</div>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-wrap justify-center gap-3">
+      <a href="#paper-pdf" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-paper text-navy font-semibold text-sm hover:bg-white shadow-lg hover:shadow-xl transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Paper (PDF)
+      </a>
+      <a href="https://arxiv.org/abs/2604.XXXXX" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/30 text-paper font-semibold text-sm hover:bg-white/20 transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        arXiv
+      </a>
+      <a href="https://github.com/yubol-bobo/Awesome-Dynamic-Agent-Skills" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/30 text-paper font-semibold text-sm hover:bg-white/20 transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.74 2.68 1.24 3.34.95.1-.74.4-1.24.73-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.94 10.94 0 0 1 5.75 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+        Code · Awesome List
+      </a>
+      <a href="#cite" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/30 text-paper font-semibold text-sm hover:bg-white/20 transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21l1.5-4.5L15 6l3 3L7.5 19.5z"/><path d="M14 7l3 3"/></svg>
+        BibTeX
+      </a>
+    </div>
+
+    <!-- key-stat strip -->
+    <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-5">
+        <div class="text-3xl font-bold text-azure">94</div>
+        <div class="text-xs uppercase tracking-wider text-paper/65 mt-1">papers audited</div>
+      </div>
+      <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-5">
+        <div class="text-3xl font-bold text-moss">10</div>
+        <div class="text-xs uppercase tracking-wider text-paper/65 mt-1">edit operators</div>
+      </div>
+      <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-5">
+        <div class="text-3xl font-bold text-gold">8</div>
+        <div class="text-xs uppercase tracking-wider text-paper/65 mt-1">lifecycle stages</div>
+      </div>
+      <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-5">
+        <div class="text-3xl font-bold text-coral">7</div>
+        <div class="text-xs uppercase tracking-wider text-paper/65 mt-1">empirical regularities</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ ABSTRACT ============================ -->
+<section id="abstract" class="max-w-4xl mx-auto px-6 py-20">
+  <h2 class="prose-title text-3xl font-bold text-navy mb-6 flex items-baseline gap-3">
+    <span class="text-azure font-mono text-base">§</span>Abstract
+  </h2>
+  <p class="text-lg leading-relaxed text-ink/85">
+    Large language model agents increasingly externalize procedural knowledge into reusable <em>skills</em>:
+    invocable code, natural-language procedures, SKILL.md packages, graphs, or parametric adapters. This externalization
+    turns adaptation into a new learning problem. The agent does not only update its prompt or weights; it updates a
+    library of artifacts that changes what future policies can retrieve, compose, execute, and trust.
+  </p>
+  <p class="text-lg leading-relaxed text-ink/85 mt-4">
+    This survey studies the rapidly growing 2023–2026 literature on <em>dynamic</em> or <em>self-evolving</em> skill systems and argues that such systems
+    are best understood as <strong class="text-navy">lifecycle-managed, verified, evolving artifact stores</strong> for LLM agents.
+    We extend the options-based skill formalism to a seven-tuple
+    $\langle C,\pi,T,R,\varphi,\nu,\prec \rangle$ that makes edits, admission verification, and provenance explicit, and
+    we lift it to library-level dynamics $\mathcal{L}_t \to \mathcal{L}_{t+1}$ driven by a ten-operator algebra
+    (<span class="font-mono text-sm">Add, Refine, Merge, Split, Prune, Distill, Abstract, Compose, Rewrite, Rerank</span>).
+  </p>
+  <p class="text-lg leading-relaxed text-ink/85 mt-4">
+    We organize 94 modern papers around a skill lifecycle: <em>evidence acquisition, proposal, verification/admission,
+    organization, retrieval/composition, maintenance/repair, distillation/portability, and governance</em>.
+    The most consistent evidence is that admission and repair matter more than raw skill count, verifier quality
+    is often load-bearing in skill-aware RL, flat retrieval degrades in the moderate-library-size regime, and benchmarks still
+    under-report library trajectories.
+  </p>
+
+  <div class="mt-10 grid md:grid-cols-5 gap-3">
+    <div class="rounded-xl border border-navy/10 bg-white px-4 py-4 text-sm">
+      <div class="font-semibold text-navy text-xs uppercase tracking-wider mb-1">Contribution 1</div>
+      <div class="text-ink/80">Recasts dynamic skills as an editable learning-systems object via the <strong>7-tuple</strong>.</div>
+    </div>
+    <div class="rounded-xl border border-navy/10 bg-white px-4 py-4 text-sm">
+      <div class="font-semibold text-navy text-xs uppercase tracking-wider mb-1">Contribution 2</div>
+      <div class="text-ink/80">Eight-stage lifecycle <strong>reference architecture</strong> for dynamic stores.</div>
+    </div>
+    <div class="rounded-xl border border-navy/10 bg-white px-4 py-4 text-sm">
+      <div class="font-semibold text-navy text-xs uppercase tracking-wider mb-1">Contribution 3</div>
+      <div class="text-ink/80">A <strong>ten-operator algebra</strong> with which we taxonomize the corpus.</div>
+    </div>
+    <div class="rounded-xl border border-navy/10 bg-white px-4 py-4 text-sm">
+      <div class="font-semibold text-navy text-xs uppercase tracking-wider mb-1">Contribution 4</div>
+      <div class="text-ink/80">Mechanisms: <strong>edit · admission · storage · fast-slow consolidation</strong>.</div>
+    </div>
+    <div class="rounded-xl border border-navy/10 bg-white px-4 py-4 text-sm">
+      <div class="font-semibold text-navy text-xs uppercase tracking-wider mb-1">Contribution 5</div>
+      <div class="text-ink/80">Seven empirical regularities, eight safety surfaces, eight open problems.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FORMALISM ============================ -->
+<section id="formalism" class="bg-white border-y border-navy/10">
+  <div class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="prose-title text-3xl font-bold text-navy mb-3 flex items-baseline gap-3">
+      <span class="text-azure font-mono text-base">§</span>From the SoK 4-tuple to a 7-tuple skill
+    </h2>
+    <p class="text-ink/75 max-w-3xl mb-10">
+      The canonical options framework gives a 4-tuple. Dynamic libraries need three more components — an
+      <em>edit operator</em>, a <em>verification predicate</em>, and a <em>lineage relation</em> — and a library-level
+      transition rule.
+    </p>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-start">
+      <div class="rounded-2xl border border-navy/15 bg-parch/60 p-7 shadow-sm">
+        <div class="text-xs uppercase font-semibold tracking-widest text-azure mb-3">Per-skill object · time-indexed</div>
+        <div class="text-center text-2xl py-4">
+          $$\mathcal{S}_t \;=\; \langle\, C_t,\; \pi_t,\; T_t,\; R_t,\; \boldsymbol{\varphi_t},\; \boldsymbol{\nu_t},\; \boldsymbol{\prec_t} \,\rangle$$
+        </div>
+        <ul class="space-y-2 text-sm text-ink/80 mt-4">
+          <li><span class="font-mono text-navy font-semibold">C</span> &nbsp; applicability — when this skill should fire</li>
+          <li><span class="font-mono text-navy font-semibold">π</span> &nbsp; executable policy — code · prompt · adapter · lesson</li>
+          <li><span class="font-mono text-navy font-semibold">T</span> &nbsp; termination — success / failure / budget</li>
+          <li><span class="font-mono text-navy font-semibold">R</span> &nbsp; reusable interface — typed I/O, invocation point</li>
+          <li class="pt-2 border-t border-navy/10"><span class="font-mono text-teal font-semibold">φ</span> &nbsp; <em>edit operator</em> — candidate-generation rule for revisions</li>
+          <li><span class="font-mono text-teal font-semibold">ν</span> &nbsp; <em>verification predicate</em> — admission gate</li>
+          <li><span class="font-mono text-teal font-semibold">≺</span> &nbsp; <em>lineage</em> — partial order for rollback &amp; supersession</li>
+        </ul>
+      </div>
+
+      <div class="rounded-2xl border border-navy/15 bg-parch/60 p-7 shadow-sm">
+        <div class="text-xs uppercase font-semibold tracking-widest text-azure mb-3">Library-level transition</div>
+        <div class="text-center text-2xl py-4">
+          $$\mathcal{L}_{t+1} \;=\; \mathrm{Apply}\!\bigl(\,\vec{u}_t(\tau_t,\, r_t),\; \mathcal{L}_t\,\bigr)$$
+        </div>
+        <ul class="space-y-2 text-sm text-ink/80 mt-4">
+          <li><span class="font-mono text-navy font-semibold">τ</span> &nbsp; trigger — task end · failure · period · user · RL step</li>
+          <li><span class="font-mono text-navy font-semibold">r</span> &nbsp; learning signal — reward · execution · critique · judge · cross-user · teacher</li>
+          <li><span class="font-mono text-navy font-semibold">𝓛</span> &nbsp; library + metadata (call graphs, maturity, verifier cache)</li>
+          <li><span class="font-mono text-navy font-semibold">𝐮</span> &nbsp; vector of operator-instructions drawn from the algebra below</li>
+        </ul>
+        <div class="mt-5 rounded-lg bg-navy/5 p-4 text-sm leading-relaxed text-ink/75 border border-navy/10">
+          A static library is the special case <span class="font-mono">u<sub>t</sub> ≡ ∅</span>:
+          edits trivial, admission always passes, no lineage. The dynamic case is what this survey audits.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ OPERATORS ============================ -->
+<section id="operators" class="max-w-6xl mx-auto px-6 py-20">
+  <h2 class="prose-title text-3xl font-bold text-navy mb-3 flex items-baseline gap-3">
+    <span class="text-azure font-mono text-base">§</span>The ten-operator library algebra
+  </h2>
+  <p class="text-ink/75 max-w-3xl mb-10">
+    Almost no system supports all ten operators; the <em>supported subset</em> is one of the clearest
+    taxonomic fingerprints we found.
+  </p>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <!-- Cards generated below -->
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-azure/15 text-steel">A</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">add</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Add</div>
+      <p class="text-sm text-ink/70 mt-1">Insert a new skill into the library.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. Voyager · SAGE</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-teal/15 text-teal">R</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">refine</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Refine</div>
+      <p class="text-sm text-ink/70 mt-1">Edit content without changing the interface.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. Memento · PSN</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-moss/20 text-moss">M</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">merge</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Merge</div>
+      <p class="text-sm text-ink/70 mt-1">Combine multiple skills into one.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. Trace2Skill · AutoRefine</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-gold/20 text-gold">S</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">split</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Split</div>
+      <p class="text-sm text-ink/70 mt-1">Factor one skill into reusable components.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. SkillX</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-coral/15 text-coral">P</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">prune</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Prune</div>
+      <p class="text-sm text-ink/70 mt-1">Remove or quarantine — load-bearing at scale.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. Wild-Skills · ClawSafety</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-azure/15 text-steel">D</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">distill</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Distill</div>
+      <p class="text-sm text-ink/70 mt-1">Compress trajectories into a skill.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. CASCADE · MUSE</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-teal/15 text-teal">B</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">abstract</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Abstract</div>
+      <p class="text-sm text-ink/70 mt-1">Lift a concrete procedure to a template.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. CUA-Skill · CoEvoSkills</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-moss/20 text-moss">C</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">compose</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Compose</div>
+      <p class="text-sm text-ink/70 mt-1">Chain skills into a verified composite.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. SkillCraft · SkillOrchestra</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-gold/20 text-gold">W</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">rewrite</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Rewrite</div>
+      <p class="text-sm text-ink/70 mt-1">Change body and possibly the interface.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. EvolveR</div>
+    </div>
+    <div class="opcard rounded-2xl border border-navy/15 bg-white p-5">
+      <div class="flex items-center justify-between">
+        <div class="opbadge text-xs px-2 py-1 rounded bg-coral/15 text-coral">K</div>
+        <div class="text-[10px] uppercase tracking-widest text-ink/40">rerank</div>
+      </div>
+      <div class="font-semibold text-navy mt-2">Rerank</div>
+      <p class="text-sm text-ink/70 mt-1">Change retrieval priors without changing content.</p>
+      <div class="text-xs text-ink/50 mt-3">e.g. SkillRouter</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ LIFECYCLE ============================ -->
+<section id="lifecycle" class="bg-gradient-to-b from-parch to-white border-y border-navy/10">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="prose-title text-3xl font-bold text-navy mb-3 flex items-baseline gap-3">
+      <span class="text-azure font-mono text-base">§</span>The eight-stage lifecycle
+    </h2>
+    <p class="text-ink/75 max-w-3xl mb-10">
+      A dynamic skill system is a controlled state machine over an evolving artifact store. Stages are not a waterfall —
+      systems loop between proposal and verification, retrieve before maintaining, and run distillation periodically.
+    </p>
+
+    <!-- Lifecycle SVG -->
+    <div class="rounded-2xl border border-navy/15 bg-white p-6 shadow-sm overflow-x-auto">
+      <svg viewBox="0 0 920 480" class="w-full h-auto" font-family="Inter, sans-serif" aria-label="Eight-stage dynamic skill lifecycle">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#1F4E79"/>
+          </marker>
+          <radialGradient id="storeGrad" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#5B8DEF" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#12305A" stop-opacity="0.05"/>
+          </radialGradient>
+        </defs>
+
+        <!-- governance ring -->
+        <ellipse cx="460" cy="240" rx="430" ry="220" fill="none" stroke="#D19A2A" stroke-width="1.4" stroke-dasharray="6 6" opacity="0.55"/>
+        <text x="460" y="40" text-anchor="middle" font-size="12" fill="#7A6018" letter-spacing="2">GOVERNANCE  ·  PROVENANCE  ·  ROLLBACK</text>
+
+        <!-- center: skill store -->
+        <g class="lifenode">
+          <circle cx="460" cy="240" r="78" fill="url(#storeGrad)" stroke="#12305A" stroke-width="1.5"/>
+          <text x="460" y="232" text-anchor="middle" font-size="14" font-weight="700" fill="#12305A">Skill Store</text>
+          <text x="460" y="252" text-anchor="middle" font-size="11" fill="#1F4E79">𝓛 — versioned</text>
+          <text x="460" y="268" text-anchor="middle" font-size="10" fill="#1F4E79">flat · tree · DAG · graph · ontology</text>
+        </g>
+
+        <!-- 6 surrounding stages around the store (org/store is the center, gov wraps) -->
+        <!-- Stage 1: Evidence -->
+        <g class="lifenode">
+          <rect x="40" y="190" width="170" height="100" rx="16" fill="#F4F7FB" stroke="#12305A" stroke-width="1.5"/>
+          <text x="125" y="216" text-anchor="middle" font-size="11" fill="#5B8DEF" letter-spacing="2">STAGE 1</text>
+          <text x="125" y="236" text-anchor="middle" font-size="14" font-weight="700" fill="#12305A">Evidence</text>
+          <text x="125" y="256" text-anchor="middle" font-size="11" fill="#1F4E79">trajectories · failures</text>
+          <text x="125" y="270" text-anchor="middle" font-size="11" fill="#1F4E79">user edits · cross-user</text>
+        </g>
+        <!-- Stage 2: Proposal -->
+        <g class="lifenode">
+          <rect x="220" y="60" width="170" height="100" rx="16" fill="#F4F7FB" stroke="#12305A" stroke-width="1.5"/>
+          <text x="305" y="86" text-anchor="middle" font-size="11" fill="#5B8DEF" letter-spacing="2">STAGE 2</text>
+          <text x="305" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#12305A">Proposal</text>
+          <text x="305" y="126" text-anchor="middle" font-size="11" fill="#1F4E79">Add · Refine · Merge</text>
+          <text x="305" y="140" text-anchor="middle" font-size="11" fill="#1F4E79">Split · Distill · Abstract</text>
+        </g>
+        <!-- Stage 3: Verification & Admission -->
+        <g class="lifenode">
+          <rect x="530" y="60" width="190" height="100" rx="16" fill="#FFF5E5" stroke="#D19A2A" stroke-width="1.6"/>
+          <text x="625" y="86" text-anchor="middle" font-size="11" fill="#A37615" letter-spacing="2">STAGE 3 · GATE</text>
+          <text x="625" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#7A5810">Verify &amp; Admit</text>
+          <text x="625" y="126" text-anchor="middle" font-size="11" fill="#7A5810">tests · judge · audit</text>
+          <text x="625" y="140" text-anchor="middle" font-size="11" fill="#7A5810">grounded rollouts</text>
+        </g>
+        <!-- Stage 4: Organization (the center counts) — show as label tag below store -->
+        <g class="lifenode">
+          <rect x="375" y="335" width="170" height="58" rx="14" fill="#E5F0F0" stroke="#0F8B8D" stroke-width="1.5"/>
+          <text x="460" y="358" text-anchor="middle" font-size="11" fill="#0F5859" letter-spacing="2">STAGE 4 · ORGANIZE</text>
+          <text x="460" y="378" text-anchor="middle" font-size="12" font-weight="600" fill="#0F5859">topology &amp; index</text>
+        </g>
+        <!-- Stage 5: Retrieval -->
+        <g class="lifenode">
+          <rect x="710" y="190" width="170" height="100" rx="16" fill="#F4F7FB" stroke="#12305A" stroke-width="1.5"/>
+          <text x="795" y="216" text-anchor="middle" font-size="11" fill="#5B8DEF" letter-spacing="2">STAGE 5</text>
+          <text x="795" y="236" text-anchor="middle" font-size="14" font-weight="700" fill="#12305A">Retrieve · Compose</text>
+          <text x="795" y="256" text-anchor="middle" font-size="11" fill="#1F4E79">top-k · graph · rerank</text>
+          <text x="795" y="270" text-anchor="middle" font-size="11" fill="#1F4E79">→ Execute</text>
+        </g>
+        <!-- Stage 6: Maintenance -->
+        <g class="lifenode">
+          <rect x="220" y="320" width="170" height="100" rx="16" fill="#FBE9EA" stroke="#C95D63" stroke-width="1.5"/>
+          <text x="305" y="346" text-anchor="middle" font-size="11" fill="#9C3F45" letter-spacing="2">STAGE 6</text>
+          <text x="305" y="366" text-anchor="middle" font-size="14" font-weight="700" fill="#7A2226">Maintain · Repair</text>
+          <text x="305" y="386" text-anchor="middle" font-size="11" fill="#7A2226">Prune · Merge · Rerank</text>
+          <text x="305" y="400" text-anchor="middle" font-size="11" fill="#7A2226">periodic audit</text>
+        </g>
+        <!-- Stage 7: Distillation (slow side loop) -->
+        <g class="lifenode">
+          <rect x="530" y="320" width="190" height="100" rx="16" fill="#EAF1E6" stroke="#5BAA78" stroke-width="1.5"/>
+          <text x="625" y="346" text-anchor="middle" font-size="11" fill="#3D7A52" letter-spacing="2">STAGE 7 · SLOW</text>
+          <text x="625" y="366" text-anchor="middle" font-size="14" font-weight="700" fill="#1F4F33">Distill · Port</text>
+          <text x="625" y="386" text-anchor="middle" font-size="11" fill="#1F4F33">→ adapters · weights</text>
+          <text x="625" y="400" text-anchor="middle" font-size="11" fill="#1F4F33">cross-agent transfer</text>
+        </g>
+
+        <!-- Arrows -->
+        <!-- Evidence -> Proposal -->
+        <path d="M 175 190 C 200 130, 235 110, 240 105" fill="none" stroke="#1F4E79" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Proposal -> Verify -->
+        <path d="M 390 110 L 525 110" fill="none" stroke="#1F4E79" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Verify -> Store (admit) -->
+        <path d="M 605 160 C 580 200, 540 220, 500 220" fill="none" stroke="#D19A2A" stroke-width="2" marker-end="url(#arr)"/>
+        <!-- Store -> Organize (down) -->
+        <path d="M 460 318 L 460 332" fill="none" stroke="#0F8B8D" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Store -> Retrieve -->
+        <path d="M 538 240 L 706 240" fill="none" stroke="#1F4E79" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Retrieve -> Evidence (loop down/around back) -->
+        <path d="M 795 290 C 795 410, 220 430, 175 290" fill="none" stroke="#1F4E79" stroke-width="1.4" marker-end="url(#arr)" stroke-dasharray="4 4"/>
+        <text x="500" y="455" text-anchor="middle" font-size="11" fill="#1F4E79" font-style="italic">execution produces new evidence</text>
+        <!-- Maintain -> Store -->
+        <path d="M 360 340 C 410 310, 430 290, 432 285" fill="none" stroke="#C95D63" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Distill -> outside (slow) shown as arrow to right edge -->
+        <path d="M 625 320 C 625 295, 540 285, 530 285" fill="none" stroke="#5BAA78" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <!-- legend -->
+        <g transform="translate(40,440)">
+          <rect width="14" height="10" fill="#FFF5E5" stroke="#D19A2A"/>
+          <text x="20" y="9" font-size="10" fill="#1F4E79">admission gate</text>
+          <rect x="120" width="14" height="10" fill="#FBE9EA" stroke="#C95D63"/>
+          <text x="140" y="9" font-size="10" fill="#1F4E79">maintenance</text>
+          <rect x="220" width="14" height="10" fill="#EAF1E6" stroke="#5BAA78"/>
+          <text x="240" y="9" font-size="10" fill="#1F4E79">slow loop</text>
+          <rect x="305" width="14" height="10" fill="none" stroke="#D19A2A" stroke-dasharray="3 3"/>
+          <text x="325" y="9" font-size="10" fill="#1F4E79">governance wrap</text>
+        </g>
+      </svg>
+    </div>
+
+    <p class="text-sm text-ink/60 mt-4 italic">
+      The most important boundary is the admission gate (Stage 3): dynamic systems can generate many plausible skills cheaply,
+      but the library only improves when admission filters them with an appropriate verifier.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ FINDINGS ============================ -->
+<section id="findings" class="max-w-6xl mx-auto px-6 py-20">
+  <h2 class="prose-title text-3xl font-bold text-navy mb-3 flex items-baseline gap-3">
+    <span class="text-azure font-mono text-base">§</span>Seven empirical regularities
+  </h2>
+  <p class="text-ink/75 max-w-3xl mb-10">
+    Stated as <em>regularities</em>, not theorems: qualitative effects are consistent, but effect sizes and boundary
+    conditions vary across methods, benchmarks, and artifact types.
+  </p>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R1</div>
+        <div class="text-[10px] uppercase tracking-widest text-moss font-semibold">strong evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Curated skills outperform unverified self-generated skills.</h3>
+      <p class="text-sm text-ink/70 mt-2">EvoSkill: +12.1 pts on SealQA via Pareto admission. CoEvoSkills: removing the surrogate verifier drops SkillsBench pass rate 71.1% → 41.1%.</p>
+    </div>
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R2</div>
+        <div class="text-[10px] uppercase tracking-widest text-moss font-semibold">strong evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Verification quality is often decisive in skill-aware RL.</h3>
+      <p class="text-sm text-ink/70 mt-2">CODE-SHARP: 24.3% → 41.0% under a learned gate. Agentic-Proposing: 68.7% → 82.3% problem validity from verifier ensemble + dynamic pruning.</p>
+    </div>
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R3</div>
+        <div class="text-[10px] uppercase tracking-widest text-gold font-semibold">moderate evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Flat retrieval often degrades around 64–128 skills.</h3>
+      <p class="text-sm text-ink/70 mt-2">Single-Agent-Skills: selection at 16–32 skills ≈ 96–98%, drops to 78% at 128, 64% at 256. Hierarchy / graph / rerank push the knee rightward.</p>
+    </div>
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R4</div>
+        <div class="text-[10px] uppercase tracking-widest text-gold font-semibold">moderate evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Larger relative gains for weaker backbones.</h3>
+      <p class="text-sm text-ink/70 mt-2">SkillWeaver, MetaClaw, EvoSkill, Agentic-Proposing all report skills compress more capability gap on weaker base models — a deployment-facing pattern, not a controlled cross-paper law.</p>
+    </div>
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R5</div>
+        <div class="text-[10px] uppercase tracking-widest text-moss font-semibold">strong evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Focused libraries often beat comprehensive ones.</h3>
+      <p class="text-sm text-ink/70 mt-2">SkillX, Wild-Skills, CASCADE, SkillMOO: distractor load is the failure mechanism. Trimming SKILL.md L2 to task-relevant prose improves use.</p>
+    </div>
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R6</div>
+        <div class="text-[10px] uppercase tracking-widest text-moss font-semibold">strong evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Maintenance becomes load-bearing at moderate-to-large library sizes.</h3>
+      <p class="text-sm text-ink/70 mt-2">AutoRefine without periodic prune+merge: TravelPlanner pass 35.6% → 31.1%, repository 4.5×, utilization 0.71 → 0.08.</p>
+    </div>
+    <div class="rounded-2xl bg-white border border-navy/15 p-6 hover:border-azure transition">
+      <div class="flex items-baseline justify-between">
+        <div class="text-azure font-mono text-2xl font-bold">R7</div>
+        <div class="text-[10px] uppercase tracking-widest text-gold font-semibold">moderate evidence</div>
+      </div>
+      <h3 class="font-semibold text-navy mt-2 leading-snug">Write-time abstraction usually beats read-time only.</h3>
+      <p class="text-sm text-ink/70 mt-2">SimpleMem: removing write-time semantic compression drops LoCoMo F1 43.24 → 31.29. XSkill, CASCADE, Trace2Skill agree.</p>
+    </div>
+
+    <div class="rounded-2xl bg-navy text-paper p-6 lg:col-span-2 border border-navy">
+      <div class="text-xs uppercase tracking-widest text-azure font-semibold mb-2">cross-cutting observation</div>
+      <p class="text-sm leading-relaxed text-paper/90">
+        Admission, verifier quality under RL, maintenance, and write-time abstraction are all forms of
+        <strong class="text-paper">write-time discipline</strong>. Retrieval scaling and focused-library effects both argue
+        that smaller can be better, through different mechanisms — retrieval resolution and distractor load.
+        Lifecycle benchmarks warn that <strong class="text-paper">skill <em>usage</em> is not skill <em>utility</em></strong>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PAPERS ============================ -->
+<section id="papers" class="bg-white border-y border-navy/10">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="flex items-baseline justify-between flex-wrap gap-3">
+      <h2 class="prose-title text-3xl font-bold text-navy flex items-baseline gap-3">
+        <span class="text-azure font-mono text-base">§</span>Surveyed papers
+      </h2>
+      <div class="text-sm text-ink/60"><span id="result-count">—</span> shown · click headers to sort · April 24 2026 cutoff</div>
+    </div>
+    <p class="text-ink/75 max-w-3xl mt-3 mb-7">
+      The master coding table from §6 of the paper, reproduced here as a filterable index of representative dynamic-skill systems.
+      Operators use the ten-letter algebra (A=Add, R=Refine, M=Merge, S=Split, P=Prune, D=Distill, B=Abstract, C=Compose, W=Rewrite, K=Rerank).
+    </p>
+
+    <!-- Filters -->
+    <div class="grid md:grid-cols-12 gap-3 mb-5">
+      <div class="md:col-span-5">
+        <label class="block text-[11px] uppercase tracking-widest text-ink/50 mb-1">Search</label>
+        <input id="f-search" type="search" placeholder="title, headline, system name…" class="w-full rounded-lg border border-navy/20 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-azure"/>
+      </div>
+      <div class="md:col-span-3">
+        <label class="block text-[11px] uppercase tracking-widest text-ink/50 mb-1">Cluster</label>
+        <select id="f-cluster" class="w-full rounded-lg border border-navy/20 px-3 py-2 text-sm bg-white">
+          <option value="">All clusters</option>
+          <option value="Found.">Foundational</option>
+          <option value="RL">Skill-aware RL</option>
+          <option value="Lesson">Lesson memory</option>
+          <option value="ExecLib">Executable libraries</option>
+          <option value="Param">Parametric / training-time</option>
+          <option value="Infra">Infrastructure &amp; governance</option>
+          <option value="Eval">Benchmarks &amp; eval</option>
+          <option value="Safety">Safety &amp; audit</option>
+        </select>
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-[11px] uppercase tracking-widest text-ink/50 mb-1">Year</label>
+        <select id="f-year" class="w-full rounded-lg border border-navy/20 px-3 py-2 text-sm bg-white">
+          <option value="">All</option>
+          <option>2026</option><option>2025</option><option>2023</option>
+        </select>
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-[11px] uppercase tracking-widest text-ink/50 mb-1">Operator</label>
+        <select id="f-op" class="w-full rounded-lg border border-navy/20 px-3 py-2 text-sm bg-white">
+          <option value="">Any</option>
+          <option value="A">A · Add</option>
+          <option value="R">R · Refine</option>
+          <option value="M">M · Merge</option>
+          <option value="S">S · Split</option>
+          <option value="P">P · Prune</option>
+          <option value="D">D · Distill</option>
+          <option value="B">B · Abstract</option>
+          <option value="C">C · Compose</option>
+          <option value="W">W · Rewrite</option>
+          <option value="K">K · Rerank</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto rounded-2xl border border-navy/15 bg-white shadow-sm">
+      <table class="ttable w-full text-sm" id="paper-table">
+        <thead class="bg-navy text-paper text-left sticky top-0">
+          <tr class="text-xs uppercase tracking-wider">
+            <th data-sort="name"      class="cursor-pointer">System</th>
+            <th data-sort="cluster"   class="cursor-pointer">Cluster</th>
+            <th data-sort="year"      class="cursor-pointer">Year</th>
+            <th class="hidden md:table-cell">Artifact</th>
+            <th class="hidden md:table-cell">Clock</th>
+            <th class="hidden lg:table-cell">Trigger</th>
+            <th>Operators</th>
+            <th class="hidden lg:table-cell">Storage</th>
+            <th>Headline</th>
+            <th class="text-right">Link</th>
+          </tr>
+        </thead>
+        <tbody id="paper-tbody"></tbody>
+      </table>
+    </div>
+
+    <p class="text-xs text-ink/50 mt-4">
+      Legend — Artifact: Code · NL · MD (SKILL.md) · LoRA · Mix.
+      Clock: fast (in-context) · slow (parametric) · 2TS (two-timescale).
+      Trigger: Task · Fail · Per (periodic) · User · RL.
+      Storage: flat · tree · DAG · graph · subsp · ontol.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ CITE ============================ -->
+<section id="cite" class="max-w-4xl mx-auto px-6 py-20">
+  <h2 class="prose-title text-3xl font-bold text-navy mb-3 flex items-baseline gap-3">
+    <span class="text-azure font-mono text-base">§</span>Citation
+  </h2>
+  <p class="text-ink/75 mb-6">If you found this survey useful for your research, please cite:</p>
+
+  <div class="relative rounded-2xl bg-ink text-paper border border-ink p-5 font-mono text-xs leading-relaxed shadow-lg overflow-x-auto">
+    <button class="copy-btn absolute top-3 right-3 inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded bg-azure/30 text-paper hover:bg-azure/50 transition" onclick="copyBib(this)">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span class="copy-label">Copy</span>
+    </button>
+<pre id="bibtex">@article{li2026dynamicskills,
+  title   = {They Are Not Static: A Survey of Dynamic Agent Skills},
+  author  = {Li, Yubo},
+  journal = {arXiv preprint},
+  year    = {2026},
+  url     = {https://github.com/yubol-bobo/Awesome-Dynamic-Agent-Skills}
+}</pre>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="bg-navy text-paper/80 mt-10">
+  <div class="max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-6 text-sm">
+    <div>
+      <div class="font-semibold text-paper">Dynamic Agent Skills · Survey 2026</div>
+      <div class="mt-1 text-paper/60 text-xs">Maintained by Yubo Li · Carnegie Mellon University</div>
+    </div>
+    <div>
+      <div class="text-xs uppercase tracking-widest text-paper/50 mb-2">Resources</div>
+      <ul class="space-y-1">
+        <li><a class="hover:text-paper" href="https://github.com/yubol-bobo/Awesome-Dynamic-Agent-Skills">GitHub repository</a></li>
+        <li><a class="hover:text-paper" href="https://github.com/yubol-bobo/Awesome-Dynamic-Agent-Skills#readme">Awesome list (categorized)</a></li>
+        <li><a class="hover:text-paper" href="https://github.com/yubol-bobo/Awesome-Dynamic-Agent-Skills/issues">Suggest a paper</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-xs uppercase tracking-widest text-paper/50 mb-2">Contact</div>
+      <a class="hover:text-paper" href="mailto:yubol@andrew.cmu.edu">yubol@andrew.cmu.edu</a>
+      <p class="text-xs text-paper/50 mt-3">Page template inspired by the academic-project-page tradition (Nerfies, Distill, etc.).</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================ DATA + JS ============================ -->
+<script>
+// Master coding table — extracted from sections/tables/tab04_master_taxonomy.tex
+// Each row: [name, cluster, artifact, clock, trigger, operators, signal, storage, headline, year, arxivId]
+const PAPERS = [
+  // Foundational
+  ["Voyager",          "Found.",  "Code", "fast", "Task", "A",            "Rew+Exec",   "flat",  "3.3× items; 15.3× tech-tree progress",          2023, "2305.16291"],
+  ["LATM",             "Found.",  "Code", "fast", "Task", "A",            "Exec",       "flat",  "Tool-maker + tool-user beats few-shot",         2023, "2305.17126"],
+  // Skill-aware RL
+  ["SAGE",             "RL",      "Code", "2TS",  "Task", "A,R",          "Rew",        "flat",  "Skill-integrated RL on AppWorld",               2025, "2512.17102"],
+  ["SkillRL",          "RL",      "Code", "slow", "RL",   "A,D",          "Rew",        "tree",  "Hierarchical skill-conditioned RL",             2026, "2602.08234"],
+  ["AgentEvolver",     "RL",      "Mix",  "2TS",  "RL",   "A,R,D",        "Rew+Crit",   "flat",  "Self-question / navigate / attribute",          2025, "2511.10395"],
+  ["CODE-SHARP",       "RL",      "Code", "2TS",  "Fail", "A,R,M,W",      "Rew+Judge",  "DAG",   "4 mutations + prereq DAG",                      2026, "2602.10085"],
+  ["Agentic-Proposing","RL",      "Mix",  "slow", "RL",   "A,R,P,D,B,C",  "Teach+Judge","DAG",   "91.6% AIME-25 (30B, 11K traj.)",                2026, "2602.03279"],
+  ["COS-PLAY",         "RL",      "Mix",  "2TS",  "RL",   "A,R,P,D",      "Rew",        "flat",  "Co-evolves decision + skill bank",              2026, "2604.20987"],
+  // Lesson memory
+  ["ERL",              "Lesson",  "NL",   "fast", "Task", "A,R",          "Crit",       "flat",  "Task-end retrospective lessons",                2026, "2603.24639"],
+  ["RetroAgent",       "Lesson",  "NL",   "fast", "Fail", "A,R",          "Crit+Judge", "flat",  "Dual intrinsic feedback",                       2026, "2603.08561"],
+  ["MUSE",             "Lesson",  "NL",   "fast", "Per",  "A,R,D",        "Crit",       "tree",  "Long-horizon productivity memory",              2025, "2510.08002"],
+  ["EvolveR",          "Lesson",  "NL",   "fast", "Task", "A,R,W",        "Crit",       "flat",  "Strategic-principle evolution",                 2025, "2510.16079"],
+  ["Memento",          "Lesson",  "MD",   "fast", "Task", "A,R,K",        "Crit+Judge", "tree",  "Case memory + SKILL.md rerank",                 2026, "2603.18743"],
+  ["XSkill",           "Lesson",  "Mix",  "fast", "Task", "A,R,M,P,B,K",  "Crit+Judge", "flat",  "Visual dual skill/experience store",            2026, "2603.12056"],
+  ["SAGER",            "Lesson",  "NL",   "fast", "User", "A,R,W",        "XUser",      "flat",  "Per-user policy skills for recommendation",     2026, "2604.14972"],
+  // Executable skill libraries
+  ["SkillWeaver",      "ExecLib", "Code", "fast", "Task", "A,R,P",        "Judge+Exec", "flat",  "Propose · practice · synth · hone (PPVH)",      2025, "2504.07079"],
+  ["AgentFactory",     "ExecLib", "Code", "fast", "User", "A,R,C",        "Judge",      "DAG",   "Subagents as evolvable skills",                 2026, "2603.18000"],
+  ["EvoSkill",         "ExecLib", "Code", "fast", "Fail", "A,R,P",        "Judge+Exec", "flat",  "Failure-driven + Pareto admission",             2026, "2603.02766"],
+  ["CoEvoSkills",      "ExecLib", "MD",   "fast", "Task", "A,R,B",        "Judge",      "flat",  "Co-evolving verifier loop",                     2026, "2604.01687"],
+  ["PSN",              "ExecLib", "Code", "fast", "Fail", "A,R,M,W,K,P",  "Crit+Judge", "graph", "5 refactors + symbolic credit",                 2026, "2601.03509"],
+  ["SkillCraft",       "ExecLib", "Code", "fast", "Task", "A,C,R",        "Exec+Judge", "DAG",   "Verified compositional MCP",                    2026, "2603.00718"],
+  ["Live-SWE-agent",   "ExecLib", "Code", "fast", "Task", "A,R",          "Exec",       "flat",  "Runtime scaffold synthesis",                    2025, "2511.13646"],
+  ["CASCADE",          "Lesson",  "Mix",  "fast", "Per",  "A,D,P",        "Teach",      "tree",  "Scientific skill consolidation",                2025, "2512.23880"],
+  ["SkillX",           "ExecLib", "Code", "fast", "Per",  "A,S,B,K",      "Judge",      "tree",  "Automatic hierarchical library",                2026, "2604.04804"],
+  ["Trace2Skill",      "ExecLib", "MD",   "fast", "Task", "A,M,D",        "Judge",      "flat",  "Prevalence-weighted consolidation",             2026, "2603.25158"],
+  ["SkillClaw",        "ExecLib", "MD",   "fast", "User", "A,R,M,K",      "XUser",      "flat",  "Cross-user skill evolution",                    2026, "2604.08377"],
+  ["AutoSkill",        "ExecLib", "MD",   "fast", "User", "A,R",          "XUser",      "flat",  "Training-free personalized bank",               2026, "2603.01145"],
+  ["AutoRefine",       "ExecLib", "MD",   "fast", "Per",  "A,R,M",        "Crit+Judge", "flat",  "Dual-form skills + maintenance",                2026, "2601.22758"],
+  ["MemSkill",         "ExecLib", "MD",   "fast", "Task", "A,R,K",        "Crit",       "tree",  "Meta-memory skill banks",                       2026, "2602.02474"],
+  ["Wild-Skills",      "ExecLib", "Code", "fast", "Per",  "A,P,K",        "Rew+Judge",  "flat",  "Utility under realistic retrieval",             2026, "2604.04323"],
+  ["CUA-Skill",        "ExecLib", "Code", "fast", "Task", "A,B",          "Exec",       "flat",  "Parameterized GUI skills",                      2026, "2601.21123"],
+  ["ABSTRAL",          "Infra",   "MD",   "fast", "Task", "A,R,C",        "Crit",       "graph", "Multi-agent design via SKILL.md",               2026, "2603.22791"],
+  ["SkillFoundry",     "ExecLib", "Mix",  "fast", "Per",  "A,R,M,P,B",    "Exec+Judge", "tree",  "Scientific contracts + provenance",             2026, "2604.03964"],
+  ["SkillForge",       "ExecLib", "MD",   "fast", "Fail", "A,R,W",        "Judge",      "flat",  "Failure diagnosis in cloud support",            2026, "2604.08618"],
+  ["SkillMOO",         "ExecLib", "MD",   "fast", "Fail", "R,P,K",        "Judge+Exec", "flat",  "Pareto pass/cost optimization",                 2026, "2604.09297"],
+  ["Bilevel-MCTS",     "ExecLib", "MD",   "fast", "Per",  "R,W",          "Judge",      "flat",  "MCTS over package structure",                   2026, "2604.15709"],
+  ["Metasurface-Agent","ExecLib", "Mix",  "fast", "Fail", "A,R",          "Exec",       "flat",  "Physics-verified scientific skills",            2026, "2604.01480"],
+  ["EvoAgent",         "ExecLib", "Mix",  "fast", "User", "A,R,K,C",      "XUser+Judge","tree",  "Multi-file skills + delegation",                2026, "2604.20133"],
+  ["MACRO",            "ExecLib", "Code", "2TS",  "Task", "A,C,D",        "Rew+Exec",   "flat",  "Discovers composite medical-imaging tools",     2026, "2603.05860"],
+  // Parametric
+  ["SELAUR",           "Param",   "LoRA", "slow", "Fail", "D",            "Rew(unc)",   "subsp", "Uncertainty-reshaped failure rewards",          2026, "2602.21158"],
+  ["SKILL0",           "Param",   "LoRA", "slow", "Per",  "D,B",          "Teach",      "subsp", "Helpfulness-decaying curricula",                2026, "2604.02268"],
+  ["LSE",              "Param",   "Mix",  "slow", "Task", "D,R",          "Rew",        "subsp", "Trained prompt-context evolution",              2026, "2603.18620"],
+  ["SkillsCrafter",    "Param",   "LoRA", "slow", "Per",  "D,M,K",        "Rew",        "subsp", "LoRA bank + semantic subspace",                 2026, "2603.05160"],
+  ["K2-Agent",         "Param",   "Mix",  "2TS",  "Task", "A,R,D",        "Rew+Teach",  "tree",  "Declarative–procedural co-evolution",           2026, "2603.00676"],
+  ["MetaClaw",         "Param",   "Mix",  "2TS",  "Per",  "A,R,D",        "Rew",        "flat",  "Fast-skill / slow-weight adaptation",           2026, "2603.17187"],
+  ["Co-Evolving",      "Param",   "Mix",  "slow", "Fail", "A,D,P",        "Rew+Crit",   "flat",  "Hard-negative failure training",                2025, "2511.22254"],
+  ["Agent0",           "Param",   "Mix",  "2TS",  "RL",   "A,D",          "Rew",        "flat",  "Zero-data curriculum-executor co-evolution",    2025, "2511.16043"],
+  ["Tool-R0",          "Param",   "Mix",  "slow", "RL",   "A,D",          "Rew",        "flat",  "Dual self-play for tool use",                   2026, "2602.21320"],
+  ["SCALAR",           "Param",   "Mix",  "slow", "RL",   "D,B",          "Teach",      "flat",  "Co-adapt difficulty + environment",             2026, "2603.09036"],
+  ["ARISE",            "Param",   "LoRA", "slow", "RL",   "D,K",          "Rew",        "subsp", "Swarm PPO + PSO actions",                       2026, "2603.16060"],
+  ["EXIF",             "Param",   "LoRA", "slow", "RL",   "D,B",          "Rew+Teach",  "flat",  "Exploration-first skill data",                  2025, "2506.04287"],
+  // Infrastructure
+  ["AgentSkillOS",     "Infra",   "MD",   "fast", "Per",  "A,C,S,P,K",    "Judge",      "tree",  "Capability tree + DAG orchestration",           2026, "2603.02176"],
+  ["SkillRouter",      "Infra",   "Code", "fast", "Per",  "K",            "Judge",      "flat",  "Full-text retrieval over 80K skills",           2026, "2603.22455"],
+  ["SkVM",             "Infra",   "Code", "fast", "User", "A,R,C",        "Exec",       "DAG",   "Skills as compilable code",                     2026, "2604.03088"],
+  ["SkillNet",         "Infra",   "MD",   "fast", "Per",  "A,K,P",        "Judge",      "graph", "Ontology + relation graph",                     2026, "2603.04448"],
+  ["SkillOrchestra",   "Infra",   "MD",   "fast", "Per",  "K,C",          "Judge",      "ontol", "Skill handbooks for routing",                   2026, "2602.19672"],
+  ["SkillFlow (2025)", "Infra",   "MD",   "fast", "Task", "K",            "Judge",      "flat",  "Multi-stage community-skill retrieval",         2025, "2504.06188"],
+  ["SkillFlow-Bench",  "Eval",    "MD",   "fast", "Task", "A,R,P",        "Crit+Judge", "flat",  "166 tasks · 20 task families",                  2026, "2604.17308"],
+  ["AutoAgent",        "Infra",   "Mix",  "2TS",  "Task", "A,R,C",        "Crit+Judge", "DAG",   "Evolves tools, peers, and self",                2026, "2603.09716"],
+  ["AgentDevel",       "Infra",   "MD",   "fast", "User", "A,R,K,P",      "XUser",      "graph", "Release engineering + lineage",                 2026, "2601.04620"],
+  ["GEA",              "Infra",   "Mix",  "2TS",  "Per",  "A,R,M",        "Judge+Rew",  "ontol", "Group-based framework evolution",               2026, "2602.04837"],
+  ["Single-Agent-Sk.", "Infra",   "Code", "fast", "Per",  "A,M,D,P",      "Judge",      "flat",  "Multi → single compilation",                    2026, "2601.04748"],
+  ["EffiSkill",        "Infra",   "Code", "fast", "Per",  "A,B,K",        "Rew",        "flat",  "Mined operator skills",                         2026, "2603.27850"],
+  ["Graph of Skills",  "Infra",   "Code", "fast", "User", "K,C",          "Rew",        "graph", "Dependency-aware retrieval",                    2026, "2604.05333"],
+  ["GraSP",            "Infra",   "Code", "fast", "Task", "C,R",          "Exec",       "DAG",   "Typed DAG composition + repair",                2026, "2604.17870"],
+  ["Skilldex",         "Infra",   "MD",   "fast", "User", "A,K,P",        "Judge",      "tree",  "Package manager + scoped registry",             2026, "2604.16911"],
+  ["Corpus2Skill",     "Infra",   "MD",   "fast", "User", "A,S,K",        "Judge",      "tree",  "Navigable enterprise QA skills",                2026, "2604.14572"],
+  ["SkillRepoMining",  "Infra",   "MD",   "fast", "User", "A,B",          "Judge",      "flat",  "GitHub repo mining to SKILL.md",                2026, "2603.11808"],
+  ["AgentSkills-Data", "Eval",    "MD",   "fast", "Per",  "K,P",          "Judge",      "—",     "40K+ public-skill ecosystem study",             2026, "2602.08004"],
+  ["SkillLearnBench",  "Eval",    "MD",   "fast", "Task", "A,R",          "Judge",      "flat",  "Continual skill-generation benchmark",          2026, "2604.20087"],
+  ["SkillsBench",      "Eval",    "MD",   "fast", "Task", "K",            "Judge",      "flat",  "Cross-task agentic-skill benchmark",            2026, "2602.12670"],
+  ["ProEvolve",        "Eval",    "Mix",  "fast", "Per",  "A,R",          "Judge",      "flat",  "Programmable evolution for benchmarks",         2026, "2603.05910"],
+  ["LifelongAgentBench","Eval",   "Mix",  "fast", "Task", "A",            "Judge",      "flat",  "Lifelong-agent evaluation suite",               2025, "2505.11942"],
+  ["ELL",              "Eval",    "Mix",  "2TS",  "Task", "A,R,D",        "Crit+Judge", "tree",  "Experience-driven lifelong-learning benchmark", 2025, "2508.19005"],
+  ["SkillGraph",       "Infra",   "Mix",  "fast", "Per",  "C,K",          "Judge",      "graph", "Multimodal collab. graph topology",             2026, "2604.17503"],
+  ["Experience-Comp.", "Infra",   "Mix",  "fast", "Per",  "D,B,K",        "Judge",      "tree",  "Memory · skills · rules unified",               2026, "2604.15877"],
+  // Safety & audit
+  ["ASG-SI",           "Safety",  "Mix",  "2TS",  "Task", "A,R,P,D",      "Rew+Judge",  "graph", "Audited skill graph + verifiable rewards",      2025, "2512.23760"],
+  ["ClawSafety",       "Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "Highest-ASR vector in personal agents",         2026, "2604.01438"],
+  ["Secure-Skills",    "Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "Lifecycle threat taxonomy",                     2026, "2604.02837"],
+  ["Supply-Chain",     "Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "DDIPE poisoning attacks",                       2026, "2604.03081"],
+  ["SkillSieve",       "Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "Hierarchical malicious-skill triage",           2026, "2604.06550"],
+  ["SkillAttack",      "Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "Automated attack-path red teaming",             2026, "2604.04989"],
+  ["BadSkill",         "Safety",  "Mix",  "fast", "User", "P",            "Exec",       "—",     "Model-in-skill backdoors",                      2026, "2604.09378"],
+  ["CredLeak",         "Safety",  "Mix",  "fast", "User", "P",            "Exec+Judge", "—",     "Cross-modal secret leakage",                    2026, "2604.03070"],
+  ["HarmfulSkillBench","Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "Harmful-but-valid skills",                      2026, "2604.15415"],
+  ["SkillStealing",    "Safety",  "MD",   "fast", "User", "K",            "Judge",      "—",     "Black-box skill extraction",                    2026, "2604.21829"],
+  ["Malicious-or-Not", "Safety",  "MD",   "fast", "User", "P",            "Judge",      "—",     "Repository-aware classification",               2026, "2603.16572"],
+  ["MedSkillAudit",    "Safety",  "MD",   "fast", "User", "P,R",          "Judge",      "—",     "Medical release-readiness audit",               2026, "2604.20441"],
+  // Position & adjacent
+  ["SoK-Skills",       "Found.",  "—",    "—",    "—",    "—",            "—",          "—",     "Position: agentic skills beyond tool use",      2026, "2602.20867"],
+  ["AgentSkills-LLMs", "Found.",  "—",    "—",    "—",    "—",            "—",          "—",     "Architecture · acquisition · security · path",  2026, "2602.12430"],
+  ["SelfEvolvingAgents","Found.", "—",    "—",    "—",    "—",            "—",          "—",     "Survey: foundation models → lifelong agents",   2025, "2508.07407"],
+  ["LifelongLLMAgents","Found.",  "—",    "—",    "—",    "—",            "—",          "—",     "Survey: roadmap for lifelong LLM agents",       2025, "2501.07278"],
+  ["SimpleMem",        "Lesson",  "Mix",  "fast", "Per",  "A,D",          "Crit",       "tree",  "Efficient lifelong memory with write-time comp.",2026, "2601.02553"],
+  ["MAGELLAN",         "RL",      "Mix",  "slow", "RL",   "A,D",          "Rew",        "flat",  "Metacognitive learning-progress goal selection",2025, ""]
+];
+
+// --- Render
+const tbody = document.getElementById('paper-tbody');
+const search = document.getElementById('f-search');
+const fCluster = document.getElementById('f-cluster');
+const fYear = document.getElementById('f-year');
+const fOp = document.getElementById('f-op');
+const resultCount = document.getElementById('result-count');
+
+function clusterChip(cluster) {
+  const map = {
+    "Found.":  ["chip-found",  "Foundational"],
+    "RL":      ["chip-rl",     "Skill-aware RL"],
+    "Lesson":  ["chip-lesson", "Lesson memory"],
+    "ExecLib": ["chip-exec",   "Executable lib"],
+    "Param":   ["chip-param",  "Parametric"],
+    "Infra":   ["chip-infra",  "Infrastructure"],
+    "Safety":  ["chip-safety", "Safety"],
+    "Eval":    ["chip-eval",   "Eval"]
+  };
+  const [cls, label] = map[cluster] || ["chip-ref", cluster];
+  return `<span class="chip ${cls}">${label}</span>`;
+}
+
+let sortKey = "name", sortAsc = true;
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+  const c = fCluster.value;
+  const y = fYear.value;
+  const op = fOp.value;
+
+  const filtered = PAPERS.filter(p => {
+    const [name, cluster, art, clk, trig, ops, sig, store, head, year, arx] = p;
+    if (q && !(name.toLowerCase().includes(q) || head.toLowerCase().includes(q) || cluster.toLowerCase().includes(q))) return false;
+    if (c && cluster !== c) return false;
+    if (y && String(year) !== y) return false;
+    if (op && !ops.split(',').map(s=>s.trim()).includes(op)) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const idx = { name: 0, cluster: 1, year: 9 }[sortKey] ?? 0;
+    const va = a[idx], vb = b[idx];
+    if (typeof va === 'number') return sortAsc ? va - vb : vb - va;
+    return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+  });
+
+  tbody.innerHTML = filtered.map(p => {
+    const [name, cluster, art, clk, trig, ops, sig, store, head, year, arx] = p;
+    const ops_html = ops.split(',').map(o => `<span class="inline-block px-1.5 py-0.5 mr-0.5 mb-0.5 rounded bg-navy/10 text-navy font-mono text-[10px] font-semibold">${o.trim()}</span>`).join('');
+    const link = arx ? `<a class="text-azure hover:underline font-medium text-xs" href="https://arxiv.org/abs/${arx}" target="_blank" rel="noopener">arXiv ↗</a>` : `<span class="text-ink/30 text-xs">—</span>`;
+    return `
+      <tr>
+        <td class="font-semibold text-navy">${name}</td>
+        <td>${clusterChip(cluster)}</td>
+        <td class="text-ink/70 tabular-nums">${year}</td>
+        <td class="hidden md:table-cell text-ink/70">${art}</td>
+        <td class="hidden md:table-cell text-ink/70">${clk}</td>
+        <td class="hidden lg:table-cell text-ink/70">${trig}</td>
+        <td>${ops_html}</td>
+        <td class="hidden lg:table-cell text-ink/70">${store}</td>
+        <td class="text-ink/85 max-w-md">${head}</td>
+        <td class="text-right">${link}</td>
+      </tr>`;
+  }).join('');
+
+  resultCount.textContent = `${filtered.length} / ${PAPERS.length}`;
+}
+
+[search, fCluster, fYear, fOp].forEach(el => el.addEventListener('input', render));
+document.querySelectorAll('th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.getAttribute('data-sort');
+    if (sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; }
+    render();
+  });
+});
+render();
+
+// Copy BibTeX
+function copyBib(btn) {
+  const txt = document.getElementById('bibtex').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const lbl = btn.querySelector('.copy-label');
+    const old = lbl.textContent;
+    lbl.textContent = 'Copied!';
+    setTimeout(() => lbl.textContent = old, 1500);
+  });
+}
+</script>
+
+</body>
+</html>

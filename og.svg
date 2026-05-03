@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" font-family="-apple-system,Inter,system-ui,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12305A"/>
+      <stop offset="100%" stop-color="#0a1f3d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#5B8DEF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#5B8DEF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="10%" cy="100%" r="70%">
+      <stop offset="0%" stop-color="#0F8B8D" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0F8B8D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- decorative ring -->
+  <ellipse cx="600" cy="315" rx="540" ry="270" fill="none" stroke="#D19A2A" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="8 8"/>
+
+  <!-- pill -->
+  <g transform="translate(70 70)">
+    <rect width="260" height="36" rx="18" fill="#ffffff" fill-opacity="0.1" stroke="#ffffff" stroke-opacity="0.3"/>
+    <circle cx="20" cy="18" r="4" fill="#5BAA78"/>
+    <text x="34" y="23" font-size="14" font-weight="500" fill="#F8FAFC" letter-spacing="1">SURVEY · 94-PAPER AUDIT · 2026</text>
+  </g>
+
+  <!-- title -->
+  <text x="70" y="220" font-family="Georgia,'Source Serif 4',serif" font-size="74" font-weight="700" fill="#F8FAFC">They Are Not Static<tspan fill="#5B8DEF">.</tspan></text>
+  <text x="70" y="298" font-family="Georgia,'Source Serif 4',serif" font-size="48" font-weight="600" fill="#F8FAFC" fill-opacity="0.85">A Survey of Dynamic Agent Skills</text>
+
+  <!-- subtitle -->
+  <text x="70" y="360" font-size="22" fill="#F8FAFC" fill-opacity="0.7">Lifecycle-managed, verified, evolving skill stores for LLM agents.</text>
+
+  <!-- stats -->
+  <g transform="translate(70 430)">
+    <g>
+      <text font-size="56" font-weight="700" fill="#5B8DEF">94</text>
+      <text x="0" y="30" font-size="14" font-weight="600" fill="#F8FAFC" fill-opacity="0.7" letter-spacing="2">PAPERS</text>
+    </g>
+    <g transform="translate(180 0)">
+      <text font-size="56" font-weight="700" fill="#5BAA78">10</text>
+      <text x="0" y="30" font-size="14" font-weight="600" fill="#F8FAFC" fill-opacity="0.7" letter-spacing="2">OPERATORS</text>
+    </g>
+    <g transform="translate(360 0)">
+      <text font-size="56" font-weight="700" fill="#D19A2A">8</text>
+      <text x="0" y="30" font-size="14" font-weight="600" fill="#F8FAFC" fill-opacity="0.7" letter-spacing="2">LIFECYCLE STAGES</text>
+    </g>
+    <g transform="translate(620 0)">
+      <text font-size="56" font-weight="700" fill="#C95D63">7</text>
+      <text x="0" y="30" font-size="14" font-weight="600" fill="#F8FAFC" fill-opacity="0.7" letter-spacing="2">REGULARITIES</text>
+    </g>
+  </g>
+
+  <!-- author -->
+  <text x="70" y="580" font-size="20" fill="#F8FAFC" fill-opacity="0.85">Yubo Li · <tspan fill="#F8FAFC" fill-opacity="0.55">Carnegie Mellon University</tspan></text>
+</svg>
